@@ -1,0 +1,278 @@
+ IEnumerable<AngelBeautySalon1.Models.Servicio>
+
+    ViewData["Title"] = "Servicios";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-concierge-bell"></i> Catálogo de Servicios
+            </h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Filtros de búsqueda -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Index" method="get" class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label">Buscar</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="searchString" 
+                                       id="searchInput"
+                                       value="@ViewData["CurrentFilter"]" 
+                                       placeholder="Nombre, descripción o categoría...">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Precio Mínimo</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   name="precioMin" 
+                                   value="@ViewData["PrecioMin"]"
+                                   step="0.01"
+                                   min="0">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Precio Máximo</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   name="precioMax" 
+                                   value="@ViewData["PrecioMax"]"
+                                   step="0.01"
+                                   min="0">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Categoría</label>
+                            <select name="categoria" class="form-select">
+                                <option value="">Todas</option>
+                                <option value="Cabello" selected="@(ViewData["Categoria"]?.ToString() == "Cabello")">Cabello</option>
+                                <option value="Uñas" selected="@(ViewData["Categoria"]?.ToString() == "Uñas")">Uñas</option>
+                                <option value="Maquillaje" selected="@(ViewData["Categoria"]?.ToString() == "Maquillaje")">Maquillaje</option>
+                                <option value="Facial" selected="@(ViewData["Categoria"]?.ToString() == "Facial")">Facial</option>
+                                <option value="Corporal" selected="@(ViewData["Categoria"]?.ToString() == "Corporal")">Corporal</option>
+                                <option value="Depilación" selected="@(ViewData["Categoria"]?.ToString() == "Depilación")">Depilación</option>
+                                <option value="Masajes" selected="@(ViewData["Categoria"]?.ToString() == "Masajes")">Masajes</option>
+                                <option value="Otro" selected="@(ViewData["Categoria"]?.ToString() == "Otro")">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()) || 
+                                 ViewData["PrecioMin"] != null || 
+                                 ViewData["PrecioMax"] != null || 
+                                 !string.IsNullOrEmpty(ViewData["Categoria"]?.ToString()))
+                            {
+                                <a asp-action="Index" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times"></i> Limpiar Filtros
+                                </a>
+                            }
+                            <a asp-action="Create" class="btn btn-primary btn-sm float-end">
+                                <i class="fas fa-plus"></i> Nuevo Servicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Búsqueda AJAX en tiempo real -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="input-group">
+                <span class="input-group-text bg-info text-white">
+                    <i class="fas fa-bolt"></i> Búsqueda Rápida
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       id="busquedaRapida"
+                       placeholder="Buscar servicios en tiempo real...">
+            </div>
+            <div id="resultadosBusquedaRapida" class="mt-2"></div>
+        </div>
+    </div>
+
+    <!-- Tabla de servicios -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Duración</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var servicio in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>@servicio.Nombre</strong></td>
+                                            <td>
+                                                @if (servicio.Descripcion.Length > 50)
+                                                {
+                                                    @(servicio.Descripcion.Substring(0, 50) + "...")
+                                                }
+                                                else
+                                                {
+                                                    @servicio.Descripcion
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@servicio.Categoria</span>
+                                            </td>
+                                            <td class="text-success"><strong>$@servicio.Precio.ToString("N2")</strong></td>
+                                            <td>@servicio.DuracionMinutos min</td>
+                                            <td class="text-center">
+                                                <a asp-action="Edit" asp-route-id="@servicio.ServicioId" 
+                                                   class="btn btn-sm btn-warning" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@servicio.ServicioId" 
+                                                   class="btn btn-sm btn-danger" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i> Total de servicios: <strong>@Model.Count()</strong>
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle"></i>
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                            {
+                                <p class="mb-0">No se encontraron servicios que coincidan con la búsqueda.</p>
+                            }
+                            else
+                            {
+                                <p class="mb-0">No hay servicios registrados. <a asp-action="Create">Crear el primero</a></p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Búsqueda rápida con AJAX
+        let searchTimeout;
+        const busquedaRapida = document.getElementById('busquedaRapida');
+        const resultadosDiv = document.getElementById('resultadosBusquedaRapida');
+
+        busquedaRapida.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const term = this.value.trim();
+
+            if (term.length < 2) {
+                resultadosDiv.innerHTML = '';
+                return;
+            }
+
+            resultadosDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Buscando...</div>';
+
+            searchTimeout = setTimeout(() => {
+                fetch(`/Servicios/BuscarAjax?term=${encodeURIComponent(term)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.length > 0) {
+                            let html = '<div class="row">';
+                            data.data.forEach(servicio => {
+                                html += `
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-body">
+                                                <h6 class="card-title">${servicio.nombre}</h6>
+                                                <p class="card-text small">${servicio.descripcion.substring(0, 60)}...</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-secondary">${servicio.categoria}</span>
+                                                    <strong class="text-success">$${servicio.precio.toFixed(2)}</strong>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock"></i> ${servicio.duracion} min
+                                                    </small>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <a href="/Servicios/Edit/${servicio.id}" class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            html += '</div>';
+                            resultadosDiv.innerHTML = html;
+                        } else {
+                            resultadosDiv.innerHTML = '<div class="alert alert-warning">No se encontraron servicios.</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resultadosDiv.innerHTML = '<div class="alert alert-danger">Error al buscar servicios.</div>';
+                    });
+            }, 400);
+        });
+    </script>
+}

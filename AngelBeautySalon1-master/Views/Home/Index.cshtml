@@ -1,0 +1,503 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<link rel="stylesheet" href="~/css/toast-notifications.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angel Beauty Salon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        <script src="~/js/api-service.js" > </script >
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 0;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efecto de brillo sutil en el fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header con efecto glassmorphism */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(245, 87, 108, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideDown 0.6s ease;
+        }
+
+        keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Logo con emoji de uñas pintadas */
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6);
+            }
+        }
+
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #FF69B4;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Banner de fecha mejorado */
+        .date-banner {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 22px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 35px;
+            box-shadow: 0 8px 32px rgba(245, 87, 108, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.8s ease;
+        }
+
+        keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Grid de tarjetas */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        /* Tarjetas con glassmorphism mejorado */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 45px 35px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 32px rgba(245, 87, 108, 0.15);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Efecto de brillo que se mueve */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        /* Borde superior de color dorado */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 15px 45px rgba(245, 87, 108, 0.3);
+        }
+
+        .card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 65px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .card:hover .card-icon {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .card-title {
+            font-size: 24px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .card-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Navegación inferior mejorada */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            padding: 18px 20px;
+            box-shadow: 0 -8px 32px rgba(245, 87, 108, 0.2);
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px 18px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .nav-btn:hover {
+            background: rgba(240, 147, 251, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        /* Badge de notificación */
+        .nav-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: ping 2s ease-in-out infinite;
+        }
+
+        keyframes ping {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        .nav-icon {
+            font-size: 26px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover .nav-icon {
+            transform: scale(1.2);
+        }
+
+        .nav-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .nav-btn.active .nav-label,
+        .nav-btn.active .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        /* Responsive */
+        media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .logo-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 40px;
+            }
+
+            .card {
+                padding: 35px 25px;
+            }
+        }
+
+        /* Animaciones escalonadas para las tarjetas */
+        .card:nth-child(1) { animation: slideUp 0.6s ease 0.1s backwards; }
+        .card:nth-child(2) { animation: slideUp 0.6s ease 0.2s backwards; }
+        .card:nth-child(3) { animation: slideUp 0.6s ease 0.3s backwards; }
+        .card:nth-child(4) { animation: slideUp 0.6s ease 0.4s backwards; }
+        .card:nth-child(5) { animation: slideUp 0.6s ease 0.5s backwards; }
+        .card:nth-child(6) { animation: slideUp 0.6s ease 0.6s backwards; }
+        .card:nth-child(7) { animation: slideUp 0.6s ease 0.7s backwards; }
+        .card:nth-child(8) { animation: slideUp 0.6s ease 0.8s backwards; }
+
+        keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">💅</div>
+                <div>
+                    <h1>ANGEL BEAUTY SALON</h1>
+                    <p class="subtitle">✨ Todo para la Belleza ✨</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="date-banner">
+            📅 <span id="currentDate"></span>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card" onclick="alert('Acceso Rapido')">
+                <div class="card-icon">⚡</div>
+                <h2 class="card-title">Acceso Rapido</h2>
+                <p class="card-description">Vista general y acciones rapidas</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/Citas'">
+                <div class="card-icon">📅</div>
+                <h2 class="card-title">Citas del Dia</h2>
+                <p class="card-description">Agenda y citas programadas</p>
+            </div>
+
+            <div class="card" onclick="alert('Modulo en desarrollo')">
+                <div class="card-icon">📊</div>
+                <h2 class="card-title">Estadisticas</h2>
+                <p class="card-description">Reportes y analisis de datos</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/Clientes'">
+                <div class="card-icon">👥</div>
+                <h2 class="card-title">Gestion de Clientes</h2>
+                <p class="card-description">Administrar base de clientes</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/Servicios'">
+                <div class="card-icon">💇</div>
+                <h2 class="card-title">Servicios</h2>
+                <p class="card-description">Catalogo de servicios</p>
+            </div>
+
+            <div class="card" onclick="alert('Modulo en desarrollo')">
+                <div class="card-icon">💰</div>
+                <h2 class="card-title">Registro de Ventas</h2>
+                <p class="card-description">Control de ingresos y ventas</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/Productoes'">
+                <div class="card-icon">🛍️</div>
+                <h2 class="card-title">Productos</h2>
+                <p class="card-description">Inventario y productos</p>
+            </div>
+
+            <div class="card" onclick="alert('Modulo en desarrollo')">
+                <div class="card-icon">⚙️</div>
+                <h2 class="card-title">Configuracion</h2>
+                <p class="card-description">Ajustes del sistema</p>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Inicio</span>
+            </button>
+            <button class="nav-btn" onclick="window.location.href='/Citas'">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Citas</span>
+            </button>
+            <button class="nav-btn" onclick="alert('Funcion en desarrollo')">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Nuevo</span>
+            </button>
+            <button class="nav-btn">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Reportes</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        function updateCurrentDate() {
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+
+            // Obtener el día de la semana, mes y día
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+            const diaSemana = diasSemana[now.getDay()];
+            const dia = now.getDate();
+            const mes = meses[now.getMonth()];
+            const año = now.getFullYear();
+
+            // Formato: "Viernes, 8 de noviembre de 2025"
+            const fechaFormateada = `${diaSemana}, ${dia} de ${mes} de ${año}`;
+
+            dateElement.textContent = fechaFormateada;
+        }
+
+        // Actualizar fecha al cargar
+        document.addEventListener('DOMContentLoaded', updateCurrentDate);
+
+        // Actualizar cada minuto por si cambia el día
+        setInterval(updateCurrentDate, 60000);
+    </script>
+</body>
+</html>

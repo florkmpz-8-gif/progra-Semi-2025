@@ -1,0 +1,228 @@
+AngelBeautySalon1.Models.Cita
+
+
+    ViewData["Title"] = "Crear Cita";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-plus"></i> Crear Nueva Cita
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="formCita" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="ClienteId" class="form-label">Cliente <span class="text-danger">*</span></label>
+                            <select asp-for="ClienteId" class="form-select" required id="clienteSelect">
+                                <option value="">-- Seleccione un cliente --</option>
+                                foreach (var cliente in ViewBag.Clientes as SelectList)
+                                {
+                                    <option value="cliente.Value">cliente.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ClienteId" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                Debe seleccionar un cliente.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="servicios" class="form-label">Servicio <span class="text-danger">*</span></label>
+                            <select asp-for="Servicios" class="form-select" required id="servicioSelect">
+                                <option value="">-- Seleccione un servicio --</option>
+                                @foreach (var servicio in ViewBag.Servicios as SelectList)
+                                {
+                                    <option value="servicio.Value">servicio.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ServicioId" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                Debe seleccionar un servicio.
+                            </div>
+                            <div id="servicioInfo" class="alert alert-info mt-2" style="display: none;">
+                                <small><strong>Duración:</strong> <span id="duracionServicio"></span> minutos</small><br>
+                                <small><strong>Precio:</strong> $<span id="precioServicio"></span></small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FechaHora" class="form-label">Fecha <span class="text-danger">*</span></label>
+                                <input asp-for="FechaHora" class="form-control" type="date" required id="fechaCita" />
+                                <span asp-validation-for="FechaHora" class="text-danger"></span>
+                                <div class="invalid-feedback">
+                                    La fecha es obligatoria y debe ser futura.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="horaCita" class="form-label">Hora <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" required id="horaCita" />
+                                <div class="invalid-feedback">
+                                    La hora es obligatoria.
+                                </div>
+                                <small class="form-text text-muted">Horario: 8:00 AM - 7:00 PM</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Estado" class="form-label">Estado <span class="text-danger">*</span></label>
+                            <select asp-for="Estado" class="form-select" required>
+                                <option value="">-- Seleccione un estado --</option>
+                                <option value="Pendiente" selected>Pendiente</option>
+                                <option value="Confirmada">Confirmada</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Cancelada">Cancelada</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                Debe seleccionar un estado.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notas" class="form-label">Notas</label>
+                            <textarea asp-for="Notas" class="form-control" rows="3" maxlength="500"></textarea>
+                            <span asp-validation-for="Notas" class="text-danger"></span>
+                            <small class="form-text text-muted">Máximo 500 caracteres. Opcional.</small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            El sistema validará que no existan citas solapadas en el mismo horario.
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+Scripts {
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Establecer fecha mínima (hoy)
+        const fechaCitaInput = document.getElementById('fechaCita');
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaCitaInput.min = hoy;
+
+        // Establecer hora por defecto
+        const horaInput = document.getElementById('horaCita');
+        horaInput.value = '09:00';
+
+        // Mostrar información del servicio seleccionado
+        const servicioSelect = document.getElementById('servicioSelect');
+        servicioSelect.addEventListener('change', function() {
+            const servicioId = this.value;
+            if (servicioId) {
+                // Aquí deberías obtener la información del servicio mediante AJAX
+                // Por ahora, mostramos el contenedor
+                document.getElementById('servicioInfo').style.display = 'block';
+                // En producción, harías una llamada AJAX para obtener duración y precio
+            } else {
+                document.getElementById('servicioInfo').style.display = 'none';
+            }
+        });
+
+        // Validación del formulario
+        const form = document.getElementById('formCita');
+        form.addEventListener('submit', function(event) {
+            // Combinar fecha y hora antes de enviar
+            const fecha = fechaCitaInput.value;
+            const hora = horaInput.value;
+            
+            if (fecha && hora) {
+                const fechaHoraCompleta = fecha + 'T' + hora;
+                
+                // Crear un input hidden para enviar la fecha completa
+                let hiddenInput = document.getElementById('fechaHoraHidden');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = 'fechaHoraHidden';
+                    hiddenInput.name = 'FechaHora';
+                    form.appendChild(hiddenInput);
+                }
+                hiddenInput.value = fechaHoraCompleta;
+                
+                // Remover el name del input original para que no se envíe duplicado
+                fechaCitaInput.removeAttribute('name');
+            }
+
+            // Validar horario de trabajo (8 AM - 7 PM)
+            if (hora) {
+                const [hours, minutes] = hora.split(':').map(Number);
+                if (hours < 8 || hours >= 19) {
+                    event.preventDefault();
+                    horaInput.setCustomValidity('El horario debe estar entre 8:00 AM y 7:00 PM');
+                    horaInput.reportValidity();
+                    form.classList.add('was-validated');
+                    return false;
+                } else {
+                    horaInput.setCustomValidity('');
+                }
+            }
+
+            // Validar que la fecha no sea pasada
+            const fechaSeleccionada = new Date(fecha + 'T' + hora);
+            const ahora = new Date();
+            if (fechaSeleccionada < ahora) {
+                event.preventDefault();
+                fechaCitaInput.setCustomValidity('La fecha y hora no pueden ser en el pasado');
+                fechaCitaInput.reportValidity();
+                form.classList.add('was-validated');
+                return false;
+            } else {
+                fechaCitaInput.setCustomValidity('');
+            }
+
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+
+        // Limpiar mensajes de validación personalizada al cambiar
+        horaInput.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+
+        fechaCitaInput.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+
+        // Validación de los selects
+        const selects = document.querySelectorAll('select[required]');
+        selects.forEach(select => {
+            select.addEventListener('change', function() {
+                if (this.value === '') {
+                    this.setCustomValidity('Debe seleccionar una opción');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        });
+    </script>
+}

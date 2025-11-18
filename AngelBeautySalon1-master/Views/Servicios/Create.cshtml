@@ -1,0 +1,253 @@
+AngelBeautySalon1.Models.Servicio
+
+
+    ViewData["Title"] = "Crear Servicio";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Crear Nuevo Servicio
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="formServicio" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre del Servicio <span class="text-danger">*</span></label>
+                            <input asp-for="Nombre" class="form-control" required minlength="3" maxlength="100" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                El nombre es obligatorio y debe tener entre 3 y 100 caracteres.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3" required minlength="10" maxlength="500"></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                La descripción es obligatoria y debe tener entre 10 y 500 caracteres.
+                            </div>
+                            <div class="form-text">
+                                <span id="caracteresRestantes">500</span> caracteres restantes
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categoria" class="form-label">Categoría <span class="text-danger">*</span></label>
+                                <select asp-for="Categoria" class="form-select" required id="categoriaSelect">
+                                    <option value="">-- Seleccione una categoría --</option>
+                                    <option value="Cabello">Cabello</option>
+                                    <option value="Uñas">Uñas</option>
+                                    <option value="Maquillaje">Maquillaje</option>
+                                    <option value="Facial">Facial</option>
+                                    <option value="Corporal">Corporal</option>
+                                    <option value="Depilación">Depilación</option>
+                                    <option value="Masajes">Masajes</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                                <span asp-validation-for="Categoria" class="text-danger"></span>
+                                <div class="invalid-feedback">
+                                    Debe seleccionar una categoría.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Precio" class="form-label">Precio ($) <span class="text-danger">*</span></label>
+                                <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0.01" max="10000" required id="precioInput" />
+                                <span asp-validation-for="Precio" class="text-danger"></span>
+                                <div class="invalid-feedback">
+                                    El precio debe estar entre $0.01 y $10,000.00
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DuracionMinutos" class="form-label">Duración (minutos) <span class="text-danger">*</span></label>
+                            <input asp-for="DuracionMinutos" class="form-control" type="number" min="15" max="480" step="5" required id="duracionInput" />
+                            <span asp-validation-for="DuracionMinutos" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                La duración debe estar entre 15 minutos y 8 horas (480 minutos).
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> 
+                                Duración sugerida: <span id="duracionHoras">0 horas 0 minutos</span>
+                            </div>
+                            
+                            <!-- Duraciones rápidas -->
+                            <div class="mt-2">
+                                <small class="text-muted">Duraciones comunes:</small>
+                                <div class="btn-group btn-group-sm mt-1" role="group">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setDuracion(30)">30 min</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setDuracion(45)">45 min</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setDuracion(60)">1 hora</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setDuracion(90)">1.5 horas</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setDuracion(120)">2 horas</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista previa del servicio -->
+                        <div class="card mb-3 bg-light">
+                            <div class="card-header">
+                                <strong><i class="fas fa-eye"></i> Vista Previa</strong>
+                            </div>
+                            <div class="card-body">
+                                <h5 id="previewNombre" class="text-muted">Nombre del servicio</h5>
+                                <p id="previewDescripcion" class="text-muted small">Descripción del servicio</p>
+                                <div class="d-flex justify-content-between">
+                                    <span class="badge bg-secondary" id="previewCategoria">Categoría</span>
+                                    <strong class="text-success" id="previewPrecio">$0.00</strong>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i> <span id="previewDuracion">0</span> minutos
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Servicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Referencias a los elementos
+        const form = document.getElementById('formServicio');
+        const nombreInput = document.querySelector('input[name="Nombre"]');
+        const descripcionTextarea = document.querySelector('textarea[name="Descripcion"]');
+        const categoriaSelect = document.getElementById('categoriaSelect');
+        const precioInput = document.getElementById('precioInput');
+        const duracionInput = document.getElementById('duracionInput');
+
+        // Contador de caracteres para descripción
+        descripcionTextarea.addEventListener('input', function() {
+            const restantes = 500 - this.value.length;
+            document.getElementById('caracteresRestantes').textContent = restantes;
+            actualizarVistaPreviaDescripcion();
+        });
+
+        // Actualizar duración en formato horas:minutos
+        duracionInput.addEventListener('input', function() {
+            const minutos = parseInt(this.value) || 0;
+            const horas = Math.floor(minutos / 60);
+            const mins = minutos % 60;
+            document.getElementById('duracionHoras').textContent = `${horas} hora${horas !== 1 ? 's' : ''} ${mins} minuto${mins !== 1 ? 's' : ''}`;
+            actualizarVistaPreviaDuracion();
+        });
+
+        // Función para establecer duración rápida
+        function setDuracion(minutos) {
+            duracionInput.value = minutos;
+            duracionInput.dispatchEvent(new Event('input'));
+        }
+
+        // Validar que el precio tenga máximo 2 decimales
+        precioInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+            actualizarVistaPreviaPrecio();
+        });
+
+        // Vista previa - Nombre
+        nombreInput.addEventListener('input', actualizarVistaPreviaNombre);
+        function actualizarVistaPreviaNombre() {
+            document.getElementById('previewNombre').textContent = nombreInput.value || 'Nombre del servicio';
+        }
+
+        // Vista previa - Descripción
+        function actualizarVistaPreviaDescripcion() {
+            const desc = descripcionTextarea.value || 'Descripción del servicio';
+            document.getElementById('previewDescripcion').textContent = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+        }
+
+        // Vista previa - Categoría
+        categoriaSelect.addEventListener('change', function() {
+            document.getElementById('previewCategoria').textContent = this.value || 'Categoría';
+        });
+
+        // Vista previa - Precio
+        function actualizarVistaPreviaPrecio() {
+            const precio = parseFloat(precioInput.value) || 0;
+            document.getElementById('previewPrecio').textContent = '$' + precio.toFixed(2);
+        }
+
+        // Vista previa - Duración
+        function actualizarVistaPreviaDuracion() {
+            document.getElementById('previewDuracion').textContent = duracionInput.value || '0';
+        }
+
+        // Validación del formulario
+        form.addEventListener('submit', function(event) {
+            // Validaciones personalizadas
+            if (precioInput.value && (parseFloat(precioInput.value) <= 0 || parseFloat(precioInput.value) > 10000)) {
+                event.preventDefault();
+                precioInput.setCustomValidity('El precio debe estar entre $0.01 y $10,000');
+                precioInput.reportValidity();
+                form.classList.add('was-validated');
+                return false;
+            } else {
+                precioInput.setCustomValidity('');
+            }
+
+            if (duracionInput.value && (parseInt(duracionInput.value) < 15 || parseInt(duracionInput.value) > 480)) {
+                event.preventDefault();
+                duracionInput.setCustomValidity('La duración debe estar entre 15 y 480 minutos');
+                duracionInput.reportValidity();
+                form.classList.add('was-validated');
+                return false;
+            } else {
+                duracionInput.setCustomValidity('');
+            }
+
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+
+        // Validación del select
+        categoriaSelect.addEventListener('change', function() {
+            if (this.value === '') {
+                this.setCustomValidity('Debe seleccionar una categoría');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Limpiar validaciones personalizadas al cambiar
+        precioInput.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+
+        duracionInput.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+    </script>
+}
