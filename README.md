@@ -1,5 +1,5 @@
-# progra-Semi-2025
-Tareas, proyectos, parciales, laboratorios PROGA I
+# Progra-Semi-2025
+Tareas, proyectos, parciales, laboratorios Programación computacional I
 
 
-#Proyecto Final
+# Proyecto Final
