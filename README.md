@@ -1,5 +1,5 @@
 # Progra-Semi-2025
-Código, ejemplos y practicas de la materia Programación computacional I
+Código, ejemplos y practicas de la materia Programación computacional I.
 
 # Proyecto Final
 
